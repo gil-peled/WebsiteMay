@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="data2.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Creates 4 equal columns */
+            gap: 20px; /* Space between columns */
+            padding: 20px;
+        }
+
+        .column {
+            /* Styles for individual columns */
+            padding: 10px;
+            border: 1px solid #ccc; /* Example border */
+        }
+
+        .header {
+            grid-column: 1 / -1; /* Header spans all columns */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr; /* Stack columns on smaller screens */
+            }
+        }
+
+        .logo-left {
+            float: left;
+            margin-left: 120px;
+        }
+        
+    </style>
+
+
+</head>
+
+
+<body>
+<script src="loadNavbar.js"></script>
+<script src="content.js"></script>
+
+
+    <!-- The collapsible button should be outside and directly above the .content div -->
+    <div id="wizard-form">
+        <!-- Step 1: Etiology of Cirrhosis -->
+        <div id="step1" class="step">
+            <h3>Primary Etiology of Cirrhosis</h3>
+            <select id="etiology" name="etiology">
+                <option value="Alcohol">Alcohol</option>
+                <option value="HCV">HCV</option>
+                <option value="HBV">HBV</option>
+                <option value="Biliary">Biliary</option>
+                <option value="MASLD">MASLD</option>
+                <option value="MetALD">Metald</option>
+
+            </select>
+            <button type="button" onclick="showNextStep()">Next</button>
+        </div>
+
+        <!-- Step 2: Years since Diagnosis -->
+        <div id="step2" class="step" style="display: none;">
+            <h3>Years since Cirrhosis Diagnosis</h3>
+            <select id="yearsCirrhosis" name="yearsCirrhosis">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <!-- ... more options ... -->
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+            </select>
+            <button type="button" onclick="showResults()">Submit</button>
+        </div>
+
+        <!-- Results will be shown here -->
+        <div id="results" style="display: none;">
+            <h3>Results</h3>
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        function showNextStep() {
+            document.getElementById("step1").style.display = "none";
+            document.getElementById("step2").style.display = "block";
+        }
+
+        function showResults() {
+            var etiology = document.getElementById("etiology").value;
+            var yearsCirrhosis = document.getElementById("yearsCirrhosis").value;
+
+            // Process the form data here or show results
+            document.getElementById("resultsContainer").innerHTML =
+                "Etiology: " + etiology + "<br>" + "Years since diagnosis: " + yearsCirrhosis;
+            
+            document.getElementById("step2").style.display = "none";
+            document.getElementById("results").style.display = "block";
+        }
+    </script>
+
+    
+    <div class="card-gap"></div>
+
+
+    <div class="grid-container">
+        <!-- Column 1: Basic Information -->
+        <div class="column">
+            <h3>Basic Information</h3>
+            <label for="ageInput">Patient Age:</label>
+            <input type="number" id="ageInput" name="ageInput" placeholder="Enter patient's age in years">
+            <div id="error-message-container" style="display: none; color: red;"></div>
+
+  
+            <!-- ...other content... -->
+
+            <div class="form-group">
+                <h3>Gender</h3>
+                <input type="radio" id="male" name="gender" value="male">
+                <label for="male">Male</label>
+                <input type="radio" id="female" name="gender" value="female" checked>
+                <label for="female">Female</label>
+                    <div id="error-message-container" style="color: red; display: none;"></div>
+
+            </div>
+
+
+            <button type="button" id="calculateButton">Calculate Risk</button>
+
+        </div>
+
+        <!-- Column 2: Comorbidities -->
+        <div class="column">
+            <h3>Comorbidities</h3>
+            <div class="checkbox">
+
+                <div class="form-group">
+                    <h3>Comorbidities</h3>
+                    <!-- Checkbox input before label to have it on the left -->
+                    <div class="checkbox">
+                        <input type="checkbox" id="myocardialInfarction" name="myocardialInfarction">
+                        <label for="myocardialInfarction">Myocardial Infarction</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="heartFailure" name="heartFailure">
+                        <label for="heartFailure">Heart Failure</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="peripheralArterialDisease" name="peripheralArterialDisease">
+                        <label for="peripheralArterialDisease">Peripheral Arterial Disease</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="cerebrovascularDisease" name="cerebrovascularDisease">
+                        <label for="cerebrovascularDisease">Cerebrovascular Disease</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="dementia" name="dementia">
+                        <label for="dementia">Dementia</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="uncomplicatedDiabetes" name="uncomplicatedDiabetes">
+                        <label for="uncomplicatedDiabetes">Uncomplicated Diabetes</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="complicatedDiabetes" name="complicatedDiabetes">
+                        <label for="complicatedDiabetes">Complicated Diabetes</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="paralysis" name="paralysis">
+                        <label for="paralysis">Paralysis</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="malignancy" name="malignancy">
+                        <label for="malignancy">Malignancy</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="metastaticCancer" name="metastaticCancer">
+                        <label for="metastaticCancer">Metastatic Cancer</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="aids" name="aids">
+                        <label for="aids">AIDS</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="pulmonaryHeartDisease" name="pulmonaryHeartDisease">
+                        <label for="pulmonaryHeartDisease">Pulmonary Heart Disease</label>
+                    </div>
+                </div>
+                
+      
+            </div>            
+        </div>
+
+        <!-- Column 3: Results -->
+        <div class="column">
+            <h3>Results</h3>
+                <!-- Container for displaying current matrix calculations based on user input -->
+                <div class="results-container" id="resultsContainer">
+                    <h4>Current Matrix Calculations:</h4>
+                    <p id="currentMatrix">[Results will be displayed here]</p>
+                </div>
+                <!-- Container for displaying matrix data loaded from data.js -->
+                <div class="results-container" id="matrixBContainer">
+                    <h4>Matrix B:</h4>
+                    <p id="matrixBData">[Matrix B data will be displayed here]</p>
+                </div>
+                <!-- Container for displaying matrix V data loaded from data.js -->
+                <div class="results-container" id="matrixVContainer">
+                    <h4>Matrix V:</h4>
+                    <p id="matrixVData">[Matrix V data will be displayed here]</p>
+                </div>
+                <!-- Reserved container for future results or additional data -->
+                <div class="results-container" id="futureResultsContainer">
+                    <h4>Additional Data:</h4>
+                    <p>[Reserved for future results]</p>
+                </div>
+                <div class="results-container" id="probabilityContainer">
+                    <h4>Calculated Probability:</h4>
+                    <p id="probabilityValue">[Probability will be displayed here]</p>
+                </div>
+                <div class="results-container" id="seContainer">
+                    <h4>Standard Error (SE):</h4>
+                    <p>[SE will be displayed here]</p>
+                </div>
+
+
+        </div>
+
+        <!-- Column 4: Methodology Link -->
+        <div class="column">
+            <h3>Learn More About Our Methodology</h3>
+            <p>Understand the science behind our calculations.</p>
+            <button onclick="location.href='methodology.html';">View Methodology</button>
+        </div>
+    </div>
+
+</body>
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+        
+
+        const calculateButton = document.getElementById('calculateButton');
+        const ageInput = document.getElementById('ageInput');
+        const genderInputs = document.querySelectorAll('input[name="gender"]');
+        const errorMessageContainer = document.getElementById('error-message-container');
+
+        calculateButton.addEventListener('click', function() {
+            const age = parseInt(ageInput.value, 10);
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+
+            
+
+            if (isNaN(age) || age < 18 || age > 90) {
+            event.preventDefault(); // Stop the form submission
+            // Display error message
+            errorMessageContainer.textContent = 'Age must be between 18 and 90.';
+            errorMessageContainer.style.display = 'block';
+            return; // Exit the event handler
+        }
+
+
+        
+        // Clear the error message
+        errorMessageContainer.style.display = 'none';
+            const comorbidities = [
+                'myocardialInfarction', 'heartFailure', 'peripheralArterialDisease', 'cerebrovascularDisease', 
+                'dementia', 'uncomplicatedDiabetes', 'complicatedDiabetes', 'paralysis', 
+                'malignancy', 'metastaticCancer', 'aids', 'pulmonaryHeartDisease'
+            ];
+
+
+            // Clear previous error messages
+            errorMessageContainer.textContent = '';
+            errorMessageContainer.style.display = 'none';
+
+            // Check if age is not a number, less than 18, or greater than 90
+            if (isNaN(age) || age < 18 || age > 90) {
+                // Prevent form submission or calculation
+                event.preventDefault();
+
+                // Display the error message
+                errorMessageContainer.textContent = 'Age must be a number between 18 and 90.';
+                errorMessageContainer.style.display = 'block';
+            } else {
+                // Age is valid, proceed with form submission or calculation
+                // ... Your calculation logic goes here ...
+            }
+
+
+
+            const etiology = document.getElementById('etiology').value;
+            const yearsCirrhosis = parseInt(document.getElementById('yearsCirrhosis').value, 10);
+            let etiology_number = convertEtiologyToNumber(etiology);
+    
+            let X = convertAgeToSpline(age);
+            X.push(gender === 'female' ? 1 : 0);
+            X = X.concat(comorbidities.map(id => document.getElementById(id).checked ? 1 : 0));
+            X.push(1); // Intercept
+    
+            const key = 'E' + etiology_number + 'T' + yearsCirrhosis;
+            const matrixB = MatrixData[key].B;
+            const matrixV = MatrixData[key].V;
+    
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.textContent = `Matrix: [${X.join(', ')}], Etiology Number: ${etiology_number}, Years of Cirrhosis: ${yearsCirrhosis}`;
+    
+            const matrixBContainer = document.getElementById('matrixBContainer');
+            const formattedMatrixB = matrixB.map(row => `[${row.join(', ')}]`).join(', ');
+            matrixBContainer.textContent = `Matrix B: [${formattedMatrixB}]`;
+    
+            const matrixVContainer = document.getElementById('matrixVContainer');
+            const formattedMatrixV = matrixV.map(row => `[${row.join(', ')}]`).join(', ');
+            matrixVContainer.textContent = `Matrix V: [${formattedMatrixV}]`;
+    
+
+            // Calculate the probability P
+            const P = calculateLogit(X, matrixB);
+            const probabilityContainer = document.getElementById('probabilityContainer');
+            probabilityContainer.textContent = `Calculated Probability (P): ${P.toFixed(4)}`;
+
+            const SE = calculateStandardError(P, X, matrixV);
+            const seContainer = document.getElementById('seContainer');
+            seContainer.textContent = `Standard Error (SE): ${SE.toFixed(4)}`;
+
+            // ... your existing code ...
+
+            const probabilityPercentageContainer = document.getElementById('probabilityPercentage');
+            probabilityPercentageContainer.textContent = `${(P * 100).toFixed(2)}%`;
+
+            // ... the rest of your existing code ...
+
+
+
+        });
+    
+        function calculateLogit(X, B) {
+            let dotProduct = 0;
+            for (let i = 0; i < X.length; i++) {
+                dotProduct += X[i] * B[i];
+            }
+            return logisticFunction(dotProduct);
+        }
+    
+        function logisticFunction(z) {
+            return 1 / (1 + Math.exp(-z));
+        }
+    
+        function convertAgeToSpline(age) {
+            let age1, age2, age3;
+            if (age < 46) {
+                age1 = age - 45;
+                age2 = 0;
+                age3 = 0;
+            } else if (age >= 46 && age <= 65) {
+                age1 = 0;
+                age2 = age - 65;
+                age3 = 0;
+            } else {
+                age1 = 0;
+                age2 = 0;
+                age3 = age - 65;
+            }
+            return [age1, age2, age3];
+        }
+    
+        function convertEtiologyToNumber(etiology) {
+            switch (etiology) {
+                case 'Alcohol': return 0;
+                case 'HCV': return 1;
+                case 'HBV': return 2;
+                case 'Biliary': return 3;
+                case 'MASLD': return 4;
+                case 'MetALD': return 5;
+                default: return 0; // Default case in case no selection matches
+            }
+        }
+
+        function calculateStandardError(P, X, V) {
+            // Calculate the vector-matrix product X'V (which will be a vector)
+            let X_transposed_V = [];
+            for (let i = 0; i < X.length; i++) {
+                X_transposed_V[i] = 0;
+                for (let j = 0; j < X.length; j++) {
+                    X_transposed_V[i] += X[j] * V[j][i];  // Notice V[j][i] not V[i][j]
+                }
+            }
+            
+            // Then calculate the scalar (X'VX)
+            let X_transposed_V_X = 0;
+            for (let i = 0; i < X.length; i++) {
+                X_transposed_V_X += X_transposed_V[i] * X[i];
+            }
+
+            // Calculate P(1-P)(X'VX) and then take the square root
+            let standardError = P * (1 - P) * Math.sqrt(X_transposed_V_X)/25;
+            return standardError;
+    }
+
+
+    });
+    </script>
+    
+
+
+</body>
+</html>
+

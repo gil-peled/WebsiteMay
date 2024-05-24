@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIB-4 Calculator</title>
+    <style>
+        .logo-left {
+            float: left;
+            margin-left: 120px;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="loadNavbar.js"></script>
+    <script src="content.js"></script>
+
+    <h2>FIB-4 Score Calculator</h2>
+    <p>Calculate the FIB-4 index to estimate the level of liver fibrosis.</p>
+
+    <div class="card">
+        <form id="fib4Form">
+            <label for="age">Age (years):</label>
+            <input type="number" id="age" name="age" required>
+
+            <label for="ast">AST (U/L):</label>
+            <input type="number" id="ast" name="ast" required>
+
+            <label for="alt">ALT (U/L):</label>
+            <input type="number" id="alt" name="alt" required>
+
+            <label for="platelets">Platelet Count (10^9/L):</label>
+            <input type="number" id="platelets" name="platelets" required>
+
+        </form>
+    </div>
+
+    <button type="button" onclick="calculateFIB4()">Calculate FIB-4 Score</button>
+
+
+    <div class="card">
+        <h3>FIB-4 Score:</h3>
+        <input type="text" id="fib4Score" disabled placeholder="FIB-4 score will be displayed here">
+    </div>
+
+    <script>
+        function calculateFIB4() {
+            const age = parseFloat(document.getElementById('age').value);
+            const ast = parseFloat(document.getElementById('ast').value);
+            const alt = parseFloat(document.getElementById('alt').value);
+            const platelets = parseFloat(document.getElementById('platelets').value);
+
+            const fib4 = (age * ast) / (platelets * Math.sqrt(alt));
+            document.getElementById('fib4Score').value = fib4.toFixed(2);
+        }
+    </script>
+</body>
+</html>

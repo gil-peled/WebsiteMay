@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MELD Score Calculator</title>
+    <style>
+        .logo-left {
+            float: left;
+            margin-left: 120px;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="loadNavbar.js"></script>
+    <script src="content.js"></script>
+
+    <h2>MELD Score Calculator</h2>
+    <p>Select the version of the MELD score to calculate based on different criteria.</p>
+
+    <div class="card">
+        <h3>Select MELD Score Version:</h3>
+        <div class="radio-group">
+            <input type="radio" id="meld1" name="meldVersion" value="meld1" onchange="toggleMeldVersion('meld1');">
+            <label for="meld1">MELD 1.0</label>
+            <input type="radio" id="meldNa" name="meldVersion" value="meldNa" onchange="toggleMeldVersion('meldNa');">
+            <label for="meldNa">MELDNa</label>
+            <input type="radio" id="meld3" name="meldVersion" value="meld3" onchange="toggleMeldVersion('meld3');" checked>
+            <label for="meld3">MELD 3.0</label>
+        </div>
+        
+        <div id="meldInputs" style="display: none;">
+            <label for="bilirubin">Serum Bilirubin (mg/dL):</label>
+            <input type="number" id="bilirubin" name="bilirubin">
+
+            <label for="creatinine">Serum Creatinine (mg/dL):</label>
+            <input type="number" id="creatinine" name="creatinine">
+
+            <label for="inr">INR:</label>
+            <input type="number" id="inr" name="inr">
+
+            <div id="sodiumInput" style="display: none;">
+                <label for="sodium">Serum Sodium (mEq/L):</label>
+                <input type="number" id="sodium" name="sodium">
+            </div>
+
+            <div id="additionalInputs" style="display: none;">
+                <label for="sex">Sex:</label>
+                <select id="sex" name="sex">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+                <label for="albumin">Serum Albumin (g/dL):</label>
+                <input type="number" id="albumin" name="albumin">
+            </div>
+        </div>
+    </div>
+
+    <button id="calculateButton" onclick="calculateMELD()">Calculate MELD Score</button>
+
+    <div class="card">
+        <h3>MELD Score</h3>
+        <input type="text" id="meldScoreOutput" disabled placeholder="MELD score will be displayed here">
+    </div>
+
+    <script>
+        // Implement JavaScript to handle form field visibility based on selected MELD version
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleMeldVersion(document.querySelector('input[name="meldVersion"]:checked').value);
+        });
+
+        function toggleMeldVersion(version) {
+            document.getElementById('meldInputs').style.display = 'block';  // Always show common fields
+
+            var sodiumInput = document.getElementById('sodiumInput');
+            var additionalInputs = document.getElementById('additionalInputs');
+
+            // Hide all initially
+            sodiumInput.style.display = 'none';
+            additionalInputs.style.display = 'none';
+
+            // Enable fields based on selected MELD version
+            if (version === 'meldNa' || version === 'meld3') {
+                sodiumInput.style.display = 'block';
+            }
+            if (version === 'meld3') {
+                additionalInputs.style.display = 'block';
+            }
+        }
+
+        function calculateMELD() {
+            // Example logic; implement according to actual MELD formulas
+            // Calculate and display MELD score based on input values and selected version
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="data_academicprototype.js"></script>
+    <script src="data523decomprob.js"></script>
+    <script src="data523hosprob.js"></script>
+    <script src="data523deathrob.js"></script>
+
+    <script src="data523decompnon.js"></script> <!-- Corrected src attribute -->
+    <script src="data523hospnon.js"></script>   <!-- Corrected src attribute -->
+    <script src="data523deathnon.js"></script>  <!-- Corrected src attribute -->
+  
+
+    
+
+    <link rel="stylesheet" href="styles.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Creates 4 equal columns */
+            gap: 20px; /* Space between columns */
+            padding: 20px;
+        }
+
+        .column {
+            /* Styles for individual columns */
+            padding: 10px;
+            border: 1px solid #ccc; /* Example border */
+        }
+
+        .header {
+            grid-column: 1 / -1; /* Header spans all columns */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr; /* Stack columns on smaller screens */
+            }
+        }
+
+        .logo-left {
+            float: left;
+            width: 100px;
+            height: 100px;
+            margin-left: 120px;
+        }
+        #wizard-form {
+    margin-left: 20px; /* Adjust the margin as needed */
+    padding: 20px; /* Optional: Add some padding inside the div */
+    background-color: white; /* Optional: Set background color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add some shadow for better visual */
+    border-radius: 8px; /* Optional: Rounded corners */
+}
+        
+    </style>
+
+
+</head>
+
+<body>
+
+    <script src="loadNavbar.js"></script>
+    <script src="content.js"></script>
+
+    <!-- The collapsible button should be outside and directly above the .content div -->
+    <div id="wizard-form">
+        <!-- Step 1: Etiology of Cirrhosis -->
+        <div id="step1" class="step">
+            <h3>Primary Etiology of Cirrhosis</h3>
+            <select id="etiology" name="etiology">
+                <option value="2 plus">2 or More Etiologies</option>
+                <option value="ALD">ALD</option>
+                <option value="Biliary">Biliary</option>
+                <option value="HBV">HBV</option>
+                <option value="HCV">HCV</option>
+                <option value="MASLD">MASLD</option>
+                <option value="No Etiology Diagnosed">None Present at Diagnosis</option>
+                <option value="Other Etiology at Diagnosis">Other Present at Diagnosis</option>
+            </select>
+            <button type="button" onclick="showNextStep()">Next</button>
+        </div>
+        <!-- Step 2: Reference Point -->
+        <div id="step2" class="step" style="display: none;">
+            <h3>Patient's Current Status</h3>
+            <select id="referencePoint" name="referencePoint">
+                <option value="Initial Diagnosis of Cirrhosis">Initial Diagnosis of Cirrhosis</option>
+                <option value="1 Year After Diagnosis of Cirrhosis">1 Year After Diagnosis of Cirrhosis</option>
+                <option value="Initial Placement onto Transplant Waitlist">Initial Placement onto Transplant Waitlist</option>
+                <option value="After Decompensating Event">After Decompensating Event</option>
+            </select>
+            <button type="button" onclick="showResults()">Submit</button>
+        </div>
+
+        <!-- Results will be shown here -->
+        <div id="results" style="display: none;">
+            <h3>Results</h3>
+            <div id="resultsContainer"></div>
+            <button type="button" onclick="resetWizard()">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        function showNextStep() {
+            document.getElementById("step1").style.display = "none";
+            document.getElementById("step2").style.display = "block";
+        }
+
+        function showResults() {
+            var etiology = document.getElementById("etiology").value;
+            var referencePoint = document.getElementById("referencePoint").value;
+
+            // Process the form data here or show results
+            document.getElementById("resultsContainer").innerHTML =
+                "Etiology: " + etiology + "<br>" + "Reference Point: " + referencePoint;
+            
+            document.getElementById("step2").style.display = "none";
+            document.getElementById("results").style.display = "block";
+        }
+
+        function resetWizard() {
+            document.getElementById("etiology").value = "";
+            document.getElementById("referencePoint").value = "initialDiagnosis";
+            document.getElementById("resultsContainer").innerHTML = "";
+            document.getElementById("results").style.display = "none";
+            document.getElementById("step1").style.display = "block";
+            document.getElementById("step2").style.display = "none";
+        }
+    </script>
+
+    
+    <div class="card-gap"></div>
+
+
+    <div class="grid-container">
+        <!-- Column 1: Basic Information -->
+        <div class="column">
+            <h3>Basic Information</h3>
+            <label for="ageInput">Patient Age:</label>
+            <input type="number" id="ageInput" name="ageInput" placeholder="Enter patient's age in years">
+            <div id="error-message-container" style="display: none; color: red;"></div>
+
+
+            <!-- ...other content... -->
+
+            <div class="form-group">
+                <h3>Gender</h3>
+                <input type="radio" id="male" name="gender" value="male">
+                <label for="male">Male</label>
+                <input type="radio" id="female" name="gender" value="female" checked>
+                <label for="female">Female</label>
+                    <div id="error-message-container" style="color: red; display: none;"></div>
+
+            </div>
+
+            <button type="button" id="calculateButton">Calculate Risk</button>
+
+        </div>
+
+        <!-- Column 2: Comorbidities -->
+        <div class="column">
+            <h3>Comorbidities</h3>
+            <div class="checkbox">
+
+                <div class="form-group">
+
+                    <!-- Checkbox input before label to have it on the left -->
+                    <div class="checkbox">
+                        <input type="checkbox" id="hcc" name="hcc">
+                        <label for="hcc">HCC</label>
+                    </div>
+                    <!-- Checkbox input before label to have it on the left -->
+                    <div class="checkbox">
+                        <input type="checkbox" id="myocardialInfarction" name="myocardialInfarction">
+                        <label for="myocardialInfarction">Myocardial Infarction</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="heartFailure" name="heartFailure">
+                        <label for="heartFailure">Heart Failure</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="peripheralArterialDisease" name="peripheralArterialDisease">
+                        <label for="peripheralArterialDisease">Peripheral Arterial Disease</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="cerebrovascularDisease" name="cerebrovascularDisease">
+                        <label for="cerebrovascularDisease">Cerebrovascular Disease</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="dementia" name="dementia">
+                        <label for="dementia">Dementia</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="pulmonaryHeartDisease" name="pulmonaryHeartDisease">
+                        <label for="pulmonaryHeartDisease">Pulmonary Heart Disease</label>
+                    </div>
+
+                    <div class="checkbox">
+                        <input type="checkbox" id="rheumaticArthritis" name="rheumaticArthritis">
+                        <label for="rheumaticArthritis">Rheumatic Arthritis</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="ulcers" name="ulcers">
+                        <label for="ulcers">Ulcers</label>
+                    </div>
+                    
+                    <div class="checkbox">
+                        <input type="checkbox" id="uncomplicatedDiabetes" name="uncomplicatedDiabetes">
+                        <label for="uncomplicatedDiabetes">Uncomplicated Diabetes</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="paralysis" name="paralysis">
+                        <label for="paralysis">Paralysis</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="complicatedDiabetes" name="complicatedDiabetes">
+                        <label for="complicatedDiabetes">Complicated Diabetes</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="malignancy" name="malignancy">
+                        <label for="malignancy">Malignancy</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="metastaticCancer" name="metastaticCancer">
+                        <label for="metastaticCancer">Metastatic Cancer</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="aids" name="aids">
+                        <label for="aids">AIDs</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="renalMild" name="renalMild">
+                        <label for="renalMild">Renal Mild</label>
+                    </div>
+                    <div class="checkbox">
+                        <input type="checkbox" id="renalSevere" name="renalSevere">
+                        <label for="renalSevere">Renal Severe</label>
+                    </div>
+                </div>
+                
+      
+            </div>            
+        </div>
+
+        <!-- Column 3: Results -->
+        <div class="column">
+            <div id="matrixTypeStep">
+                <h3>Select Matrix Type</h3>
+                <select id="matrixTypeSelect">
+                    <option value="Rob">Robust</option>
+                    <option value="Non">Non-Robust</option>
+                </select>
+            </div>
+            <h3>Results</h3>
+
+                <!-- Container for displaying matrix data loaded from data.js -->
+                <div class="results-container" id="matrixBContainer">
+                    <h4>Matrix B:</h4>
+                    <p id="matrixBData">[Matrix B data will be displayed here]</p>
+                </div>
+                <!-- Container for displaying matrix V data loaded from data.js -->
+                <div class="results-container" id="matrixVContainer">
+                    <h4>Matrix V:</h4>
+                    <p id="matrixVData">[Matrix V data will be displayed here]</p>
+                </div>
+
+
+                <div class="results-container" id="probabilityContainer">
+                    <h4>Decompensated Probability:</h4>
+                    <p id="probabilityValue">[Probability will be displayed here]</p>
+                </div>
+                
+                <div class="results-container bounds-container" id="boundsContainer" style="display: none;">
+                    <h3>Decompensation Outcomes</h3>
+                    <div class="bounds">
+                        <div class="bound">
+                            <h4>Lower Bound (95% CI):</h4>
+                            <p id="lowerBound">[Lower Bound will be displayed here]</p>
+                        </div>
+                        <div class="bound">
+                            <h4>Upper Bound (95% CI):</h4>
+                            <p id="upperBound">[Upper Bound will be displayed here]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hospitalization -->
+
+                <div class="results-container" id="probabilityContainer2">
+                    <h4>Hospitalization Probability:</h4>
+                    <p id="probabilityValue2">[Probability will be displayed here]</p>
+                </div>
+
+                <div class="results-container bounds-container" id="boundsContainer2" style="display: none;">
+                    <h3>Hospitalization Outcomes</h3>
+                    <div class="bounds">
+                        <div class="bound">
+                            <h4>Lower Bound:</h4>
+                            <p id="lowerBound2">[Lower Bound will be displayed here]</p>
+                        </div>
+                        <div class="bound">
+                            <h4>Upper Bound:</h4>
+                            <p id="upperBound2">[Upper Bound will be displayed here]</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Death -->
+
+                <div class="results-container" id="probabilityContainer3">
+                    <h4>Death Probability:</h4>
+                    <p id="probabilityValue3">[Probability will be displayed here]</p>
+                </div>
+
+                <div class="results-container bounds-container" id="boundsContainer3" style="display: none;">
+                    <h3>Death Outcomes</h3>
+                    <div class="bounds">
+                        <div class="bound">
+                            <h4>Lower Bound:</h4>
+                            <p id="lowerBound3">[Lower Bound will be displayed here]</p>
+                        </div>
+                        <div class="bound">
+                            <h4>Upper Bound:</h4>
+                            <p id="upperBound3">[Upper Bound will be displayed here]</p>
+                        </div>
+                    </div>
+                </div>
+                
+
+        </div>
+
+        <!-- Column 4: Methodology Link -->
+        <div class="column">
+            <h3>Learn More About Our Methodology</h3>
+            <p>Understand the science behind our calculations.</p>
+            <button onclick="location.href='methodology.html';">View Methodology</button>
+        </div>
+    </div>
+
+
+<script>
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+        
+
+        const calculateButton = document.getElementById('calculateButton');
+        const ageInput = document.getElementById('ageInput');
+        const genderInputs = document.querySelectorAll('input[name="gender"]');
+        const errorMessageContainer = document.getElementById('error-message-container');
+
+        calculateButton.addEventListener('click', function() {
+            const age = parseInt(ageInput.value, 10);
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+        
+            // Clear the error message
+            errorMessageContainer.style.display = 'none';
+                const comorbidities = [
+                    'hcc', 'myocardialInfarction', 'heartFailure', 'peripheralArterialDisease', 'cerebrovascularDisease', 
+                    'dementia', 'pulmonaryHeartDisease', 'rheumaticArthritis', 'ulcers', 
+                    'uncomplicatedDiabetes', 'paralysis', 'complicatedDiabetes', 'malignancy', 
+                    'metastaticCancer', 'aids', 'renalMild', 'renalSevere'
+                ];
+
+
+            // Clear previous error messages
+            errorMessageContainer.textContent = '';
+            errorMessageContainer.style.display = 'none';
+
+            // Check if age is not a number, less than 18, or greater than 90
+            if (isNaN(age) || age < 18 || age > 90) {
+                // Prevent form submission or calculation
+                event.preventDefault();
+
+                // Display the error message
+                errorMessageContainer.textContent = 'Age must be a number between 18 and 90.';
+                errorMessageContainer.style.display = 'block';
+            } else {
+                // Age is valid, proceed with form submission or calculation
+                // ... Your calculation logic goes here ...
+            }
+
+
+            const etiology = document.getElementById('etiology').value;
+            const referencePoint = document.getElementById('referencePoint').value;
+            let etiology_number = convertEtiologyToNumber(etiology);
+            let reference_point_number = convertReferencePointToNumber(referencePoint);
+
+            console.log("Etiology: ", etiology, " -> Number: ", etiology_number);
+            console.log("Reference Point: ", referencePoint, " -> Number: ", reference_point_number);
+
+
+    
+            let X = convertAgeToSpline(age);
+            X.push(gender === 'female' ? 1 : 0);
+            X = X.concat(comorbidities.map(id => document.getElementById(id).checked ? 1 : 0));
+            X.push(1); // Intercept
+    
+            console.log("X Matrix: ", X);
+
+
+            const key = 'E' + etiology_number + 'T' + reference_point_number;
+            if (!MatrixDecompRob[key] || !MatrixHospRob[key] || !MatrixDeathRob[key]) {
+                console.error("MatrixData for key not found: ", key);
+                errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
+                errorMessageContainer.style.display = 'block';
+                return;
+            }
+
+            console.log("Key: ", key);
+
+            const matrixType = matrixTypeSelect.value; // Get the selected matrix type
+
+            console.log("Matrix Type: ", matrixType);
+
+
+
+            let matrixB, matrixV;
+
+            if (matrixType === 'Rob') {
+                if (!MatrixDecompRob[key] || !MatrixHospRob[key] || !MatrixDeathRob[key]) {
+                    errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
+                    errorMessageContainer.style.display = 'block';
+                    return;
+                }
+
+                // Decompensation
+                matrixB = MatrixDecompRob[key].B;
+                matrixV = MatrixDecompRob[key].V;
+            } else {
+                if (typeof MatrixDecompNon === 'undefined' || typeof MatrixHospNon === 'undefined' || typeof MatrixDeathNon === 'undefined') {
+                    console.error("MatrixDecompNon, MatrixHospNon, or MatrixDeathNon is not defined.");
+                    errorMessageContainer.textContent = 'The necessary data is not loaded.';
+                    errorMessageContainer.style.display = 'block';
+                    return;
+                }
+
+                if (!MatrixDecompNon[key] || !MatrixHospNon[key] || !MatrixDeathNon[key]) {
+                    errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
+                    errorMessageContainer.style.display = 'block';
+                    return;
+                }
+
+                // Decompensation
+                matrixB = MatrixDecompNon[key].B;
+                matrixV = MatrixDecompNon[key].V;
+            }
+
+            console.log("Selected Matrix Type: ", matrixType);
+            console.log("Decompensation V Matrix: ", matrixV);
+    
+    
+            /*const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.textContent = `Matrix: [${X.join(', ')}], Etiology Number: ${etiology_number}, Reference Point Number: ${reference_point_number}`;
+
+
+
+            const matrixBContainer = document.getElementById('matrixBContainer');
+            const formattedMatrixB = matrixB.map(row => `[${row.join(', ')}]`).join(', ');
+            matrixBContainer.textContent = `Matrix B: [${formattedMatrixB}]`;
+    
+            const matrixVContainer = document.getElementById('matrixVContainer');
+            const formattedMatrixV = matrixV.map(row => `[${row.join(', ')}]`).join(', ');
+            matrixVContainer.textContent = `Matrix V: [${formattedMatrixV}]`;
+            
+            */
+
+            // Calculate the probability P
+            const P = calculateLogit(X, matrixB);
+            const probabilityContainer = document.getElementById('probabilityContainer');
+            probabilityContainer.textContent = `Calculated Probability (P): ${P.toFixed(4)}`;
+
+
+            // ... your existing code ...
+            // Corrected IDs for the lower and upper bounds
+            const lowerBoundContainer = document.getElementById('lowerBound');
+            const upperBoundContainer = document.getElementById('upperBound');
+
+            // Calculate and display the bounds
+            const lowerBound = calculateLowerBound(X, matrixB, matrixV);
+            lowerBoundContainer.textContent = `${lowerBound.toFixed(4)}`;
+            const upperBound = calculateUpperBound(X, matrixB, matrixV);
+            upperBoundContainer.textContent = `${upperBound.toFixed(4)}`;
+            
+            // Show the bounds container after the calculation
+            document.getElementById('boundsContainer').style.display = 'block';
+
+
+            // Hospitalization
+            let matrixB2, matrixV2;
+
+
+            if (matrixType === 'Rob') {
+                if (!MatrixHospRob[key]) {
+                    errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
+                    errorMessageContainer.style.display = 'block';
+                    return;
+                }
+                matrixB2 = MatrixHospRob[key].B;
+                matrixV2 = MatrixHospRob[key].V;
+            } else {
+                if (typeof MatrixHospNon === 'undefined' || !MatrixHospNon[key]) {
+                    console.error("MatrixHospNon is not defined or not available for key:", key);
+                    errorMessageContainer.textContent = 'The necessary data is not loaded.';
+                    errorMessageContainer.style.display = 'block';
+                    return;
+                }
+                matrixB2 = MatrixHospNon[key].B;
+                matrixV2 = MatrixHospNon[key].V;
+            }
+
+            const P2 = calculateLogit(X, matrixB2);
+            const probabilityContainer2 = document.getElementById('probabilityContainer2');
+            probabilityContainer2.textContent = `Calculated Probability (P): ${P2.toFixed(4)}`;
+
+            const lowerBoundContainer2 = document.getElementById('lowerBound2');
+            const upperBoundContainer2 = document.getElementById('upperBound2');
+            const lowerBound2 = calculateLowerBound(X, matrixB2, matrixV2);
+            lowerBoundContainer2.textContent = `${lowerBound2.toFixed(4)}`;
+            const upperBound2 = calculateUpperBound(X, matrixB2, matrixV2);
+            upperBoundContainer2.textContent = `${upperBound2.toFixed(4)}`;
+
+            // Show the bounds container after the calculation
+            document.getElementById('boundsContainer2').style.display = 'block';
+
+            // Death
+
+            let matrixB3, matrixV3;
+
+            if (matrixType === 'Rob') {
+                if (!MatrixDeathRob[key]) {
+                    errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
+                    errorMessageContainer.style.display = 'block';
+                    return;
+                }
+                matrixB3 = MatrixDeathRob[key].B;
+                matrixV3 = MatrixDeathRob[key].V;
+            } else {
+                if (typeof MatrixDeathNon === 'undefined' || !MatrixDeathNon[key]) {
+                    console.error("MatrixDeathNon is not defined or not available for key:", key);
+                    errorMessageContainer.textContent = 'The necessary data is not loaded.';
+                    errorMessageContainer.style.display = 'block';
+                    return;
+                }
+                matrixB3 = MatrixDeathNon[key].B;
+                matrixV3 = MatrixDeathNon[key].V;
+            }
+
+            const P3 = calculateLogit(X, matrixB3);
+            const probabilityContainer3 = document.getElementById('probabilityContainer3');
+            probabilityContainer3.textContent = `Calculated Probability (P): ${P3.toFixed(4)}`;
+
+            const lowerBoundContainer3 = document.getElementById('lowerBound3');
+            const upperBoundContainer3 = document.getElementById('upperBound3');
+            const lowerBound3 = calculateLowerBound(X, matrixB3, matrixV3);
+            lowerBoundContainer3.textContent = `${lowerBound3.toFixed(4)}`;
+            const upperBound3 = calculateUpperBound(X, matrixB3, matrixV3);
+            upperBoundContainer3.textContent = `${upperBound3.toFixed(4)}`;
+
+            // Show the bounds container after the calculation
+            document.getElementById('boundsContainer3').style.display = 'block';
+
+
+        });
+    
+        function calculateLogit(X, B) {
+            console.log("X:", X);
+            console.log("B:", B);
+
+            let dotProduct = 0;
+            for (let i = 0; i < X.length; i++) {
+                dotProduct += X[i] * B[i];
+            }
+            return logisticFunction(dotProduct);
+        }
+    
+        function logisticFunction(z) {
+            let p = 1 / (1 + Math.exp(-z))
+            return p;
+            onsole.log("P:",p);
+        }
+    
+        function convertAgeToSpline(age) {
+            let age1, age2, age3;
+                age1 = age;
+                age2 = (age-46)*(age>46);
+                age3 = (age-65)*(age>65);
+            return [age1, age2, age3];
+        }
+
+        function convertEtiologyToNumber(etiology) {
+        switch (etiology) {
+            case '2 plus': return 0;
+            case 'ALD': return 1;
+            case 'Biliary': return 2;
+            case 'HBV': return 3;
+            case 'HCV': return 4;
+            case 'MASLD': return 5;
+            case 'No Etiology Diagnosed': return 6;
+            case 'Other Etiology at Diagnosis': return 7;
+            default: return -1; // Default case to handle unexpected values
+        }
+    }
+        function convertReferencePointToNumber(referencePoint) {
+            switch (referencePoint) {
+                case 'Initial Diagnosis of Cirrhosis': return 0;
+                case '1 Year After Diagnosis of Cirrhosis': return 1;
+                case 'Initial Placement onto Transplant Waitlist': return 2;
+                case 'After Decompensating Event': return 3;
+                default: return -1; // Default case to handle unexpected values
+            }
+        }
+
+        function calculateStandardError(X, V) {
+            let X_transposed_V = new Array(X.length).fill(0);
+            console.log("Initial X_transposed_V:", X_transposed_V);
+
+            // Calculate X'V
+            for (let i = 0; i < X.length; i++) {
+                for (let j = 0; j < X.length; j++) {
+                    X_transposed_V[i] += X[j] * V[j][i];
+                }
+            }
+            console.log("Calculated X_transposed_V:", X_transposed_V);
+
+            // Calculate (X'V)X
+            let X_transposed_V_X = 0;
+            for (let i = 0; i < X.length; i++) {
+                X_transposed_V_X += X_transposed_V[i] * X[i];
+            }
+            console.log("Calculated X_transposed_V_X:", X_transposed_V_X);
+
+            return Math.sqrt(X_transposed_V_X);
+        }
+
+
+        function calculateLowerBound(X, B, V) {
+            // Calculate dot product X'B
+            let X_dot_B = 0;
+            for (let i = 0; i < X.length; i++) {
+                X_dot_B += X[i] * B[i];
+            }
+
+            // Calculate standard error sqrt(X'VX)
+            const sqrt_XVX = calculateStandardError(X, V);
+
+            // Calculate the lower bound in the logit scale
+            const z = X_dot_B - 1.96 * sqrt_XVX;
+
+            // Apply logistic function to get the lower bound probability
+            return logisticFunction(z);
+        }
+
+        function calculateUpperBound(X, B, V) {
+            // Calculate dot product X'B
+            let X_dot_B = 0;
+            for (let i = 0; i < X.length; i++) {
+                X_dot_B += X[i] * B[i];
+            }
+
+            // Calculate standard error sqrt(X'VX)
+            const sqrt_XVX = calculateStandardError(X, V);
+
+            // Calculate the upper bound in the logit scale
+            const z = X_dot_B + 1.96 * sqrt_XVX;
+
+            // Apply logistic function to get the upper bound probability
+            return logisticFunction(z);
+        }
+
+        function logisticFunction(z) {
+            return 1 / (1 + Math.exp(-z));
+        }
+    });
+    </script>
+    
+
+
+</body>
+</html>
+

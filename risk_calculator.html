@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div class="navigation">
+        <button onclick="window.location.href='index.html';">Home</button>
+    </div>
+
+    <h2>Patient Decompensation Risk Calculator</h2>
+    <p>Enter the patient's details to estimate the risk of decompensation in the next year. Decompensation refers to the deterioration of a patient's health status, which could lead to increased risk of hospitalization or mortality.</p>
+
+    <div class="card">
+        <h3>Basic Information</h3>
+        <label for="ageInput">Patient Age:</label>
+        <input type="number" id="ageInput" name="ageInput" placeholder="Enter patient's age in years">
+        <span id="ageErrorMessage" style="color: red;"></span>
+
+
+        <h3>Etiology of Cirrhosis</h3>
+        <label for="etiology">Primary Etiology:</label>
+        <select id="etiology" name="etiologyRange">
+            <option value="Undeclared">Undeclared</option>
+            <option value="Alcohol">Alcohol</option>
+            <option value="AlcoholHCV">Alcohol + HCV</option>
+            <option value="MASLD">MASLD (formerly NASH)</option>
+            <option value="MASLDHCV">MASLD + HCV</option>
+            <option value="HCV">Hepatitis C Virus</option>
+            <option value="HBV">Hepatitis B Virus</option>
+            <option value="Biliary">Biliary Disease</option>
+            <option value="Autoimmune">Autoimmune related</option>
+        </select>
+
+        
+        <h3>Gender</h3>
+        <div class="radio-group">
+            <input type="radio" id="male" name="gender" value="male">
+            <label for="male">Male</label>
+            <input type="radio" id="female" name="gender" value="female">
+            <label for="female">Female</label>
+            <input type="radio" id="undeclared" name="gender" value="undeclared" checked>
+            <label for="undeclared">Undeclared</label>
+        </div>
+
+        <h3>Do you have lab values?</h3>
+        <div class="radio-group">
+            <input type="radio" id="labsYes" name="labs" value="yes" onchange="toggleLabInputs(true);">
+            <label for="labsYes">Yes</label>
+            <input type="radio" id="labsNo" name="labs" value="no" checked onchange="toggleLabInputs(false);">
+            <label for="labsNo">No</label>
+        </div>
+
+        <div id="labInputs" style="display: none;">
+            <label for="creatinine">Creatinine lab (mg/dL):</label>
+            <input type="number" id="creatinineInput" name="creatinineInput" placeholder="Enter patient's Creatinine in mg/dL">
+            <span id="creatinineErrorMessage" style="color: red;"></span>
+
+            <label for="sodium">Sodium lab (mEq/L):</label>
+            <input type="number" id="sodiumInput" name="sodiumInput" placeholder="Enter patient's Sodium in mEq/L">
+            <span id="sodiumErrorMessage" style="color: red;"></span>
+
+            <label for="platelet">Platelet lab (k/microliter):</label>
+            <input type="number" id="plateletInput" name="plateletInput" placeholder="Enter patient's Platelet in k/microliter">
+            <span id="plateletErrorMessage" style="color: red;"></span>
+
+            <label for="albumin">Albumin lab (mg/dL):</label>
+            <input type="number" id="albuminInput" name="albuminInput" placeholder="Enter patient's Albumin in g/dL">
+            <span id="albuminErrorMessage" style="color: red;"></span>
+
+            <label for="bilirubin">Bilirubin lab (mg/dL):</label>
+            <input type="number" id="bilirubinInput" name="bilirubinInput" placeholder="Enter patient's Bilirubin in mg/dL">
+            <span id="bilirubinErrorMessage" style="color: red;"></span>
+
+            <label for="inr">INR lab (mg/dL):</label>
+            <input type="number" id="inrInput" name="inrInput" placeholder="Enter patient's INR in standard units">
+            <span id="inrErrorMessage" style="color: red;"></span>
+        </div>
+
+
+    </div>
+
+    <button id="calculateButton">Calculate Risk</button>
+
+    <div class="card">
+        <h3>Results</h3>
+        <div class="results-container">
+            <div>
+                <label for="outputDecompensation">1-Year Decompensation:</label>
+                <input type="text" id="outputDecompensation" disabled placeholder="Decompensation score">
+            </div>
+            <div>
+                <label for="outputDeath">1-Year Death:</label>
+                <input type="text" id="outputDeath" disabled placeholder="Death score">
+            </div>
+            <div>
+                <label for="outputHospitalization">1-Year Hospitalization:</label>
+                <input type="text" id="outputHospitalization" disabled placeholder="Hospitalization score">
+            </div>
+        </div>
+    </div>
+
+    
+    <script>
+        const calculateButton = document.getElementById('calculateButton');
+        const outputResult = document.getElementById('outputResult');
+        const ageInput = document.getElementById('ageInput');
+        const genderRadios = document.querySelectorAll('input[name="gender"]');
+        const ageErrorMessage = document.getElementById('ageErrorMessage');
+
+
+        const outputDecompensation = document.getElementById('outputDecompensation');
+        const outputDeath = document.getElementById('outputDeath');
+        const outputHospitalization = document.getElementById('outputHospitalization');
+
+
+        function toggleLabInputs(show) {
+            document.getElementById('labInputs').style.display = show ? 'block' : 'none';
+        }
+
+    
+        calculateButton.addEventListener('click', function() {
+
+            const age = ageInput.value ? parseFloat(ageInput.value) : 60;
+            const hasLabs = document.querySelector('input[name="labs"]:checked').value === 'yes';
+
+            // Reset error messages
+            ageErrorMessage.textContent = '';
+
+            // Validate the age input
+            if (isNaN(age) || age < 18 || age > 90) {
+                ageErrorMessage.textContent = "Please enter a valid age between 18 and 90.";
+                outputResult.value = '';
+                return; // Exit the function if age is not valid
+            }
+            
+            let ageScore = calculateAgeScore(age);
+
+            const selectedEtiology = etiology.value;
+            const selectedGender = document.querySelector('input[name="gender"]:checked').value;
+            
+            // Calculate etiology and gender scores as before
+            let etiologyScore = calculateEtiologyScore(selectedEtiology);
+            let genderScore = calculateGenderScore(selectedGender);
+
+            // Initialize labScores
+            let labScores;
+            if (hasLabs) {
+                // Extract values, or pass undefined to use defaults
+                labScores = calculateLabScores(
+                    creatinineInput.value ? parseFloat(creatinineInput.value) : undefined,
+                    sodiumInput.value ? parseFloat(sodiumInput.value) : undefined,
+                    plateletInput.value ? parseFloat(plateletInput.value) : undefined,
+                    albuminInput.value ? parseFloat(albuminInput.value) : undefined,
+                    bilirubinInput.value ? parseFloat(bilirubinInput.value) : undefined,
+                    inrInput.value ? parseFloat(inrInput.value) : undefined
+
+                    // ... add the rest of the lab inputs
+                );
+            } else {
+                labScores = calculateLabScores(); // No labs provided, will use default values
+            }
+
+
+            // Different intercepts for each output
+            const interceptDecompensation = 4;
+            const interceptDeath = 3; // Example intercept value for death probability
+            const interceptHospitalization = 2; // Example intercept value for hospitalization probability
+
+            // Calculate the final logit scores including the labScores
+            const logitScoreDecompensation = ageScore + etiologyScore + genderScore + labScores + interceptDecompensation;
+            const logitScoreDeath = ageScore + etiologyScore + genderScore + labScores + interceptDeath;
+            const logitScoreHospitalization = ageScore + etiologyScore + genderScore + labScores + interceptHospitalization;
+
+            // Transform the logit scores to probabilities
+            const probabilityDecompensation = Math.exp(logitScoreDecompensation) / (1 + Math.exp(logitScoreDecompensation));
+            const probabilityDeath = Math.exp(logitScoreDeath) / (1 + Math.exp(logitScoreDeath));
+            const probabilityHospitalization = Math.exp(logitScoreHospitalization) / (1 + Math.exp(logitScoreHospitalization));
+
+            // Display the probabilities, rounded to 4 decimal places
+            outputDecompensation.value = probabilityDecompensation.toFixed(4);
+            outputDeath.value = probabilityDeath.toFixed(4);
+            outputHospitalization.value = probabilityHospitalization.toFixed(4);
+        });
+
+        function calculateAgeScore(age) {
+
+        if (isNaN(age) || age === '') {
+            age = 60;
+        }       
+
+        if (age <= 45) {
+            return (age - 18) * 0.02;
+        } else if (age <= 65) {
+            return (45 - 18) * 0.02 + (age - 45) * (-0.03);
+        } else {
+            return (45 - 18) * 0.02 + (65 - 45) * (-0.03) + (age - 65) * 0.03;
+        }
+    }
+
+    function calculateEtiologyScore(selectedEtiology) {
+    // Adjust these scores based on the actual impact of etiology on the logit score
+    const etiologyScores = {
+        'Alcohol': 0.3,
+        'AlcoholHCV': 0.5,
+        'MASLD': 0.8,
+        'MASLDHCV': 1.0,
+        'HCV': 1.2,
+        'HBV': 1.5,
+        'Biliary': 1.8,
+        'Autoimmune': 2.0,
+        'Undeclared': 0.5 // Default score if undeclared
+    };
+    return etiologyScores[selectedEtiology] || etiologyScores['Undeclared'];
+}
+
+function calculateGenderScore(selectedGender) {
+    const genderScores = {
+        'male': 0, // Assuming 'male' has no effect and thus is the baseline
+        'female': -2,
+        'undeclared': -0.3
+    };
+    return genderScores[selectedGender];
+}
+
+function calculateLabScores(creatinine, sodium, platelet, albumin, bilirubin, inr) {
+    // Assuming a linear score contribution from labs. Adjust as necessary.
+    // Placeholder values for "normal" levels, if labs are not provided
+    const defaultScores = {
+        creatinine: 1, // Default score for normal creatinine levels
+        sodium: 1, // Default score for normal sodium levels
+        platelet: 1, // Default score for normal platelet levels
+        albumin: 1, // Default score for normal albumin levels
+        bilirubin: 1, // Default score for normal bilirubin levels
+        inr: 1 // Default score for normal INR levels
+    };
+    
+    // Replace with actual lab score calculation logic
+    let labScore = 0;
+    labScore += (creatinine || defaultScores.creatinine) * 0.1; // Example score factor
+    labScore += (sodium || defaultScores.sodium) * 0.1; // Example score factor
+    labScore += (platelet || defaultScores.platelet) * 0.1; // Example score factor
+    labScore += (albumin || defaultScores.albumin) * 0.1; // Example score factor
+    labScore += (bilirubin || defaultScores.bilirubin) * 0.1; // Example score factor
+    labScore += (inr || defaultScores.inr) * 0.1; // Example score factor
+
+    return labScore;
+}
+
+
+    </script>
+    
+    
+    
+<!-- Add this at the bottom of the risk_calculator.html file -->
+<div class="card">
+    <h3>Learn More About Our Methodology</h3>
+    <p>Understand the science behind our calculations.</p>
+    <button onclick="location.href='methodology.html';">View Methodology</button>
+</div>
+
+
+</body>
+</html>
+
