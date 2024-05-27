@@ -262,76 +262,52 @@
             <h3>Results</h3>
 
                 <!-- Container for displaying matrix data loaded from data.js -->
-                <div class="results-container" id="matrixBContainer">
-                    <h4>Matrix B:</h4>
-                    <p id="matrixBData">[Matrix B data will be displayed here]</p>
-                </div>
-                <!-- Container for displaying matrix V data loaded from data.js -->
-                <div class="results-container" id="matrixVContainer">
-                    <h4>Matrix V:</h4>
-                    <p id="matrixVData">[Matrix V data will be displayed here]</p>
-                </div>
 
-
-                <div class="results-container" id="probabilityContainer">
-                    <h4>Decompensated Probability:</h4>
-                    <p id="probabilityValue">[Probability will be displayed here]</p>
-                </div>
-                
-                <div class="results-container bounds-container" id="boundsContainer" style="display: none;">
-                    <h3>Decompensation Outcomes</h3>
-                    <div class="bounds">
-                        <div class="bound">
-                            <h4>Lower Bound (95% CI):</h4>
-                            <p id="lowerBound">[Lower Bound will be displayed here]</p>
-                        </div>
-                        <div class="bound">
-                            <h4>Upper Bound (95% CI):</h4>
-                            <p id="upperBound">[Upper Bound will be displayed here]</p>
-                        </div>
-                    </div>
+                   <!-- Decompensation Probability -->
+                <div class="results-container">
+                    <h4 class="outcome-title">Decompensation Outcomes</h4>
+                    <table class="results-table">
+                        <tr>
+                            <th>Probability</th>
+                            <td id="probabilityValue">[Probability will be displayed here]</td>
+                        </tr>
+                        <tr>
+                            <th>95% CI</th>
+                            <td>(<span id="lowerBound">[Lower Bound]</span> - <span id="upperBound">[Upper Bound]</span>)</td>
+                        </tr>
+                    </table>
                 </div>
 
                 <!-- Hospitalization -->
 
-                <div class="results-container" id="probabilityContainer2">
-                    <h4>Hospitalization Probability:</h4>
-                    <p id="probabilityValue2">[Probability will be displayed here]</p>
+                <!-- Hospitalization Probability -->
+                <div class="results-container">
+                    <h4 class="outcome-title">Hospitalization Outcomes</h4>
+                    <table class="results-table">
+                        <tr>
+                            <th>Probability</th>
+                            <td id="probabilityValue2">[Probability will be displayed here]</td>
+                        </tr>
+                        <tr>
+                            <th>95% CI</th>
+                            <td>(<span id="lowerBound2">[Lower Bound]</span> - <span id="upperBound2">[Upper Bound]</span>)</td>
+                        </tr>
+                    </table>
                 </div>
 
-                <div class="results-container bounds-container" id="boundsContainer2" style="display: none;">
-                    <h3>Hospitalization Outcomes</h3>
-                    <div class="bounds">
-                        <div class="bound">
-                            <h4>Lower Bound:</h4>
-                            <p id="lowerBound2">[Lower Bound will be displayed here]</p>
-                        </div>
-                        <div class="bound">
-                            <h4>Upper Bound:</h4>
-                            <p id="upperBound2">[Upper Bound will be displayed here]</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Death -->
-
-                <div class="results-container" id="probabilityContainer3">
-                    <h4>Death Probability:</h4>
-                    <p id="probabilityValue3">[Probability will be displayed here]</p>
-                </div>
-
-                <div class="results-container bounds-container" id="boundsContainer3" style="display: none;">
-                    <h3>Death Outcomes</h3>
-                    <div class="bounds">
-                        <div class="bound">
-                            <h4>Lower Bound:</h4>
-                            <p id="lowerBound3">[Lower Bound will be displayed here]</p>
-                        </div>
-                        <div class="bound">
-                            <h4>Upper Bound:</h4>
-                            <p id="upperBound3">[Upper Bound will be displayed here]</p>
-                        </div>
-                    </div>
+                <!-- Death Probability -->
+                <div class="results-container">
+                    <h4 class="outcome-title">Death Outcomes</h4>
+                    <table class="results-table">
+                        <tr>
+                            <th>Probability</th>
+                            <td id="probabilityValue3">[Probability will be displayed here]</td>
+                        </tr>
+                        <tr>
+                            <th>95% CI</th>
+                            <td>(<span id="lowerBound3">[Lower Bound]</span> - <span id="upperBound3">[Upper Bound]</span>)</td>
+                        </tr>
+                    </table>
                 </div>
                 
 
@@ -475,23 +451,34 @@
 
             // Calculate the probability P
             const P = calculateLogit(X, matrixB);
-            const probabilityContainer = document.getElementById('probabilityContainer');
-            probabilityContainer.textContent = `Calculated Probability (P): ${P.toFixed(4)}`;
+            const probabilityValue = document.getElementById('probabilityValue');
+            const lowerBound = document.getElementById('lowerBound');
+            const upperBound = document.getElementById('upperBound');
+            //const probabilityContainer = document.getElementById('probabilityContainer');
+            //probabilityContainer.textContent = `Calculated Probability (P): ${P.toFixed(4)}`;
+            if (probabilityValue) {
+            probabilityValue.textContent = P.toFixed(4);
+            } else {
+                console.error('Element with ID "probabilityValue" not found.');
+            }
 
+            if (lowerBound) {
+                lowerBound.textContent = calculateLowerBound(X, matrixB, matrixV).toFixed(4);
+            } else {
+                console.error('Element with ID "lowerBound" not found.');
+            }
+
+            if (upperBound) {
+                upperBound.textContent = calculateUpperBound(X, matrixB, matrixV).toFixed(4);
+            } else {
+                console.error('Element with ID "upperBound" not found.');
+            }
 
             // ... your existing code ...
             // Corrected IDs for the lower and upper bounds
-            const lowerBoundContainer = document.getElementById('lowerBound');
-            const upperBoundContainer = document.getElementById('upperBound');
+            //const lowerBoundContainer = document.getElementById('lowerBound');
+            //const upperBoundContainer = document.getElementById('upperBound');
 
-            // Calculate and display the bounds
-            const lowerBound = calculateLowerBound(X, matrixB, matrixV);
-            lowerBoundContainer.textContent = `${lowerBound.toFixed(4)}`;
-            const upperBound = calculateUpperBound(X, matrixB, matrixV);
-            upperBoundContainer.textContent = `${upperBound.toFixed(4)}`;
-            
-            // Show the bounds container after the calculation
-            document.getElementById('boundsContainer').style.display = 'block';
 
 
             // Hospitalization
@@ -499,75 +486,93 @@
 
 
             if (matrixType === 'Rob') {
-                if (!MatrixHospRob[key]) {
-                    errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
-                    errorMessageContainer.style.display = 'block';
-                    return;
-                }
-                matrixB2 = MatrixHospRob[key].B;
-                matrixV2 = MatrixHospRob[key].V;
-            } else {
-                if (typeof MatrixHospNon === 'undefined' || !MatrixHospNon[key]) {
-                    console.error("MatrixHospNon is not defined or not available for key:", key);
-                    errorMessageContainer.textContent = 'The necessary data is not loaded.';
-                    errorMessageContainer.style.display = 'block';
-                    return;
-                }
-                matrixB2 = MatrixHospNon[key].B;
-                matrixV2 = MatrixHospNon[key].V;
+            if (!MatrixHospRob[key]) {
+                errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
+                errorMessageContainer.style.display = 'block';
+                return;
             }
+            matrixB2 = MatrixHospRob[key].B;
+            matrixV2 = MatrixHospRob[key].V;
+        } else {
+            if (typeof MatrixHospNon === 'undefined' || !MatrixHospNon[key]) {
+                console.error("MatrixHospNon is not defined or not available for key:", key);
+                errorMessageContainer.textContent = 'The necessary data is not loaded.';
+                errorMessageContainer.style.display = 'block';
+                return;
+            }
+            matrixB2 = MatrixHospNon[key].B;
+            matrixV2 = MatrixHospNon[key].V;
+        }
 
-            const P2 = calculateLogit(X, matrixB2);
-            const probabilityContainer2 = document.getElementById('probabilityContainer2');
-            probabilityContainer2.textContent = `Calculated Probability (P): ${P2.toFixed(4)}`;
+        const P2 = calculateLogit(X, matrixB2);
+        const probabilityValue2 = document.getElementById('probabilityValue2');
+        const lowerBound2 = document.getElementById('lowerBound2');
+        const upperBound2 = document.getElementById('upperBound2');
 
-            const lowerBoundContainer2 = document.getElementById('lowerBound2');
-            const upperBoundContainer2 = document.getElementById('upperBound2');
-            const lowerBound2 = calculateLowerBound(X, matrixB2, matrixV2);
-            lowerBoundContainer2.textContent = `${lowerBound2.toFixed(4)}`;
-            const upperBound2 = calculateUpperBound(X, matrixB2, matrixV2);
-            upperBoundContainer2.textContent = `${upperBound2.toFixed(4)}`;
+        if (probabilityValue2) {
+            probabilityValue2.textContent = P2.toFixed(4);
+        } else {
+            console.error('Element with ID "probabilityValue2" not found.');
+        }
 
-            // Show the bounds container after the calculation
-            document.getElementById('boundsContainer2').style.display = 'block';
+        if (lowerBound2) {
+            lowerBound2.textContent = calculateLowerBound(X, matrixB2, matrixV2).toFixed(4);
+        } else {
+            console.error('Element with ID "lowerBound2" not found.');
+        }
+
+        if (upperBound2) {
+            upperBound2.textContent = calculateUpperBound(X, matrixB2, matrixV2).toFixed(4);
+        } else {
+            console.error('Element with ID "upperBound2" not found.');
+        }
 
             // Death
 
-            let matrixB3, matrixV3;
+            // Death
+        let matrixB3, matrixV3;
 
-            if (matrixType === 'Rob') {
-                if (!MatrixDeathRob[key]) {
-                    errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
-                    errorMessageContainer.style.display = 'block';
-                    return;
-                }
-                matrixB3 = MatrixDeathRob[key].B;
-                matrixV3 = MatrixDeathRob[key].V;
-            } else {
-                if (typeof MatrixDeathNon === 'undefined' || !MatrixDeathNon[key]) {
-                    console.error("MatrixDeathNon is not defined or not available for key:", key);
-                    errorMessageContainer.textContent = 'The necessary data is not loaded.';
-                    errorMessageContainer.style.display = 'block';
-                    return;
-                }
-                matrixB3 = MatrixDeathNon[key].B;
-                matrixV3 = MatrixDeathNon[key].V;
-            }
+if (matrixType === 'Rob') {
+    if (!MatrixDeathRob[key]) {
+        errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
+        errorMessageContainer.style.display = 'block';
+        return;
+    }
+    matrixB3 = MatrixDeathRob[key].B;
+    matrixV3 = MatrixDeathRob[key].V;
+} else {
+    if (typeof MatrixDeathNon === 'undefined' || !MatrixDeathNon[key]) {
+        console.error("MatrixDeathNon is not defined or not available for key:", key);
+        errorMessageContainer.textContent = 'The necessary data is not loaded.';
+        errorMessageContainer.style.display = 'block';
+        return;
+    }
+    matrixB3 = MatrixDeathNon[key].B;
+    matrixV3 = MatrixDeathNon[key].V;
+}
 
-            const P3 = calculateLogit(X, matrixB3);
-            const probabilityContainer3 = document.getElementById('probabilityContainer3');
-            probabilityContainer3.textContent = `Calculated Probability (P): ${P3.toFixed(4)}`;
+const P3 = calculateLogit(X, matrixB3);
+const probabilityValue3 = document.getElementById('probabilityValue3');
+const lowerBound3 = document.getElementById('lowerBound3');
+const upperBound3 = document.getElementById('upperBound3');
 
-            const lowerBoundContainer3 = document.getElementById('lowerBound3');
-            const upperBoundContainer3 = document.getElementById('upperBound3');
-            const lowerBound3 = calculateLowerBound(X, matrixB3, matrixV3);
-            lowerBoundContainer3.textContent = `${lowerBound3.toFixed(4)}`;
-            const upperBound3 = calculateUpperBound(X, matrixB3, matrixV3);
-            upperBoundContainer3.textContent = `${upperBound3.toFixed(4)}`;
+if (probabilityValue3) {
+    probabilityValue3.textContent = P3.toFixed(4);
+} else {
+    console.error('Element with ID "probabilityValue3" not found.');
+}
 
-            // Show the bounds container after the calculation
-            document.getElementById('boundsContainer3').style.display = 'block';
+if (lowerBound3) {
+    lowerBound3.textContent = calculateLowerBound(X, matrixB3, matrixV3).toFixed(4);
+} else {
+    console.error('Element with ID "lowerBound3" not found.');
+}
 
+if (upperBound3) {
+    upperBound3.textContent = calculateUpperBound(X, matrixB3, matrixV3).toFixed(4);
+} else {
+    console.error('Element with ID "upperBound3" not found.');
+}
 
         });
     
