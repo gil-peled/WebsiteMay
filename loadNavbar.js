@@ -12,24 +12,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
     <div class="main-menu">
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="research.html">Research</a></li>
-            <li><a href="prototype_academic.html">Academic Prototype</a></li>
+            <li><a href="prototype_academic.html">Calculator Beta</a></li>
             <li class="dropdown">
-                <a href="javascript:void(0)" class="dropbtn">Visual Prototypes</a>
-                <div class="dropdown-content">
-                    <a href="prototype_1.html">Prototype 1</a>
-                    <a href="prototype_2.html">Prototype 2</a>
-                    <a href="prototype_3.html">Prototype 3</a>
-                    <a href="prototype_4.html">Prototype 4</a>
-                    <a href="prototype_5.html">Prototype 5</a>
-                    <a href="prototype_academicApril.html">April 2024 Prototype Academic 6</a>
-                </div>
-            </li>
-            <li class="dropdown">
-                <a href="javascript:void(0)" class="dropbtn">Other Calculators</a>
+                <a href="javascript:void(0)" class="dropbtn">Other</a>
                 <div class="dropdown-content">
                     <a href="fib4_calculator.html">FIB-4</a>
                     <a href="meld_calculator.html">MELD</a>
+                    <a href="prototype_all_outcomes.html">All Outcomes Calculator</a>
                 </div>
             </li>
             <li class="dropdown">
