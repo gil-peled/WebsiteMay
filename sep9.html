@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="data_academicprototype.js"></script>
+    <script src="data523decomprob.js"></script>
+    <script src="data523hosprob.js"></script>
+    <script src="data523deathrob.js"></script>
+
+    <script src="912fulltimejson.js"></script>
+    <script src="912pre2016.js"></script>
+    <script src="912post2016.js"></script>
+
+
+    <script src="data523decompnon.js"></script> <!-- Corrected src attribute -->
+    <script src="data523hospnon.js"></script>   <!-- Corrected src attribute -->
+    <script src="data523deathnon.js"></script>  <!-- Corrected src attribute -->
+  
+
+    
+
+    <link rel="stylesheet" href="styles_sep9.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+
+    <style>
+
+        .column {
+            /* Styles for individual columns */
+            padding: 10px;
+            border: 1px solid #ccc; /* Example border */
+        }
+
+        .header {
+            grid-column: 1 / -1; /* Header spans all columns */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr; /* Stack columns on smaller screens */
+            }
+        }
+
+        .logo-left {
+            float: left;
+            width: 100px;
+            height: 100px;
+            margin-left: 120px;
+        }
+        #wizard-form {
+    margin-left: 20px; /* Adjust the margin as needed */
+    padding: 20px; /* Optional: Add some padding inside the div */
+    background-color: white; /* Optional: Set background color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add some shadow for better visual */
+    border-radius: 8px; /* Optional: Rounded corners */
+}
+        
+    </style>
+
+
+</head>
+
+<body>
+
+    <script src="loadNavbar.js"></script>
+    <script src="content.js"></script>
+
+    <!-- The collapsible button should be outside and directly above the .content div -->
+    <div id="wizard-form">
+        <!-- Step 1: Etiology of Cirrhosis -->
+        <div id="step1" class="step">
+            <h3 style="text-align: center;">Primary Etiology of Cirrhosis 
+                <span class="info-icon" id="etiologyInfo">ℹ️</span>
+            </h3>
+            <div class="etiology-dropdown-container" style="justify-content: center;">
+                <select id="etiology" name="etiology" class="etiology-dropdown">
+                    <option value="2 plus">2 or More Etiologies</option>
+                    <option value="ALD">ALD</option>
+                    <option value="Biliary">Biliary</option>
+                    <option value="HBV">HBV</option>
+                    <option value="HCV">HCV</option>
+                    <option value="MASLD">MASLD</option>
+                    <option value="METALD">METALD</option>
+                    <option value="No Etiology Diagnosed">None Present at Diagnosis</option>
+                    <option value="Other Etiology at Diagnosis">Other Present at Diagnosis</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="matrixTypeSelection">
+            <label for="matrixType">Select Time Period:</label>
+            <select id="matrixType" name="matrixType">
+                <option value="Full">Full Sample</option>
+                <option value="pre2016">Pre-2016</option>
+                <option value="post2016">Post-2016</option>
+            </select>
+        </div>
+
+        <!-- Results will be shown here -->
+        <div id="results" style="display: none;">
+            <h3>Results</h3>
+            <div id="resultsContainer"></div>
+            <button type="button" onclick="resetWizard()">Reset</button>
+        </div>
+    </div>
+
+    <div id="etiologyTooltip" class="tooltip">
+        <ul>
+            <li><strong>2 or More Etiologies:</strong> Multiple causes identified.</li>
+            <li><strong>ALD:</strong> Alcohol-related liver disease.</li>
+            <li><strong>Biliary:</strong> Diseases affecting the bile ducts.</li>
+            <li><strong>HBV:</strong> Hepatitis B virus infection.</li>
+            <li><strong>HCV:</strong> Hepatitis C virus infection.</li>
+            <li><strong>MASLD:</strong> Metabolic associated fatty liver disease.</li>
+            <li><strong>METALD:</strong> Metabolic and Alcohol associated liver disease.</li>
+            <li><strong>No Etiology Diagnosed:</strong> No cause identified at diagnosis.</li>
+            <li><strong>Other Etiology at Diagnosis:</strong> Other causes present at diagnosis.</li>
+        </ul>
+    </div>
+
+    <script>
+
+    const etiologyInfo = document.getElementById('etiologyInfo');
+    const tooltip = document.getElementById('etiologyTooltip');
+
+    etiologyInfo.addEventListener('mouseover', function() {
+        tooltip.style.display = 'block';
+        const rect = this.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+        
+        // Calculate position to ensure tooltip stays within viewport
+        let top = rect.bottom;
+        let left = rect.right;
+
+        if (top + tooltipRect.height > window.innerHeight) {
+            top = rect.top - tooltipRect.height;
+        }
+        
+        if (left + tooltipRect.width > window.innerWidth) {
+            left = rect.left - tooltipRect.width;
+        }
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
+    });
+
+    etiologyInfo.addEventListener('mouseout', function() {
+        setTimeout(() => {
+            if (!tooltip.matches(':hover')) {
+                tooltip.style.display = 'none';
+            }
+        }, 300);
+    });
+
+    tooltip.addEventListener('mouseleave', function() {
+        tooltip.style.display = 'none';
+    });
+
+        /*
+
+        function showResults() {
+            var etiology = document.getElementById("etiology").value;
+            var referencePoint = "Initial Diagnosis of Cirrhosis"; // Fixed reference point
+
+            // Process the form data here or show results
+            document.getElementById("resultsContainer").innerHTML =
+                "Etiology: " + etiology + "<br>" + "Reference Point: " + referencePoint;
+            
+            document.getElementById("step1").style.display = "none";
+            document.getElementById("results").style.display = "block";
+
+            // Call the functions to calculate probabilities and show results
+            calculateProbabilities(etiology, referencePoint);
+        }
+
+        function resetWizard() {
+            document.getElementById("etiology").value = "";
+            document.getElementById("resultsContainer").innerHTML = "";
+            document.getElementById("results").style.display = "none";
+            document.getElementById("step1").style.display = "block";
+        }
+        */
+
+    </script>
+
+    
+    <div class="card-gap"></div>
+
+
+    <div class="grid-container">
+        <!-- Column 1: Basic Information -->
+        <div class="column">
+            <h3>Basic Information</h3>
+
+
+            <div class="form-group">
+                <h3><label for="ageInput">Patient Age:</label></h3>
+                <input type="number" id="ageInput" name="ageInput" placeholder="Enter patient's age in years">
+            </div>
+            <div id="error-message-container" style="display: none; color: red;"></div>
+            <!-- Gender section similar to before, omitted for brevity -->
+
+
+            <!-- ...other content... -->
+
+            <div class="form-group">
+                <h3>Gender</h3>
+                <input type="radio" id="male" name="gender" value="male">
+                <label for="male">Male</label>
+                <input type="radio" id="female" name="gender" value="female" checked>
+                <label for="female">Female</label>
+                    <div id="error-message-container" style="color: red; display: none;"></div>
+
+            </div>
+
+            <div id="error-message-etiology" style="color: red; display: none;">Please select at least one etiology.</div>
+
+            <div id="hcvDrugContainer" class="checkbox-item" style="display:none;">
+                <input type="checkbox" id="hcvdrug" name="hcvdrug">
+                <label for="hcvdrug">HCV Drug</label>
+                <span class="info-icon" data-info="HCV Drug: Interferon or DAA">ℹ️</span>
+            </div>
+
+            <div style="text-align: center;">
+                <button type="button" id="calculateButton">Calculate Risk</button>
+            </div>
+
+
+
+        </div>
+
+        <!-- Column 2: Comorbidities -->
+        <div class="column">
+            <h3>Comorbidities</h3>
+            <div class="checkbox-group"> <!-- Fixed missing closing tag -->
+        
+                <div class="checkbox-column">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="hcc" name="hcc">
+                        <label for="hcc">HCC</label>
+                        <span class="info-icon" data-info="Hepatocellular Carcinoma (HCC) is a type of liver cancer.">ℹ️</span>
+                    </div>
+                    <div class="checkbox-item">
+                            <input type="checkbox" id="obese" name="obese">
+                            <label for="obese">Obesity</label>
+                            <span class="info-icon" data-info="Obesity blah blah.">ℹ️</span>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="hyper" name="hyper">
+                        <label for="hyper">Hypertension</label>
+                        <span class="info-icon" data-info="Hypertension blah blah">ℹ️</span>
+                    </div> 
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="myocardialInfarction" name="myocardialInfarction">
+                        <label for="myocardialInfarction">Myocardial Infarction</label>
+                        <span class="info-icon" data-info="Heart attack due to blocked coronary artery. 'When your heart says, 'I've had enough!'—literally.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="heartFailure" name="heartFailure">
+                        <label for="heartFailure">Heart Failure</label>
+                        <span class="info-icon" data-info="Congestive heart failure: Heart can't pump blood effectively. 'It's like your heart tried to win a triathlon but forgot how to swim, bike, and run.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="peripheralVascularDisease" name="peripheralVascularDisease">
+                        <label for="peripheralVascularDisease">Peripheral Vascular Disease</label>
+                        <span class="info-icon" data-info="Peripheral vascular disease: Narrowed blood vessels reduce blood flow to limbs. 'When your blood vessels play 'traffic jam' with your circulation.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="cerebrovascularDisease" name="cerebrovascularDisease">
+                        <label for="cerebrovascularDisease">Cerebrovascular Disease</label>
+                        <span class="info-icon" data-info="Cerebrovascular disease: Disorders affecting blood flow to the brain. 'When your brain's blood supply decides to play hide and seek.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="dementia" name="dementia">
+                        <label for="dementia">Dementia</label>
+                        <span class="info-icon" data-info="Dementia: Decline in cognitive function affecting daily life. 'When the brain's filing cabinet starts misplacing important files.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="COPD" name="COPD">
+                        <label for="COPD">COPD</label>
+                        <span class="info-icon" data-info="Chronic Obstructive Pulmonary Disease (COPD): Lung disease causing breathing difficulty. 'When your lungs act like they're training for a marathon with a weight on their chest.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="rheumaticArthritis" name="rheumaticArthritis">
+                        <label for="rheumaticArthritis">Rheumatic Diseases</label>
+                        <span class="info-icon" data-info="Rheumatic disease/Connective Tissue Disease: Autoimmune conditions affecting joints and connective tissue. 'When your immune system thinks your joints are the enemy and goes on the attack.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="ulcers" name="ulcers">
+                        <label for="ulcers">Ulcers</label>
+                        <span class="info-icon" data-info="Peptic ulcer disease: Sores in the stomach lining or upper small intestine. 'When your stomach decides to spice things up with a few extra craters.'">ℹ️</span>
+
+                    </div>
+                </div>  
+                
+                <div class="checkbox-column">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="uncomplicatedDiabetes" name="uncomplicatedDiabetes">
+                        <label for="uncomplicatedDiabetes">Uncomplicated Diabetes</label>
+                        <span class="info-icon" data-info="Diabetes without chronic complication: High blood sugar levels without severe long-term issues. 'When your pancreas is just a little confused, but not in full crisis mode.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="paralysis" name="paralysis">
+                        <label for="paralysis">Paralysis</label>
+                        <span class="info-icon" data-info="Paralysis: Loss of muscle function in part of your body. 'When your nerves decide to take an extended coffee break.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="complicatedDiabetes" name="complicatedDiabetes">
+                        <label for="complicatedDiabetes">Complicated Diabetes</label>
+                        <span class="info-icon" data-info="Diabetes with chronic complication: High blood sugar levels causing long-term issues. 'When your pancreas turns your body into a drama series with too many plot twists.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="malignancy" name="malignancy">
+                        <label for="malignancy">Malignancy</label>
+                        <span class="info-icon" data-info="Any malignancy, including lymphoma and leukemia, except malignant neoplasm of skin: Cancer affecting various parts of the body. 'When your cells decide to go rogue and start their own rebellion.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="metastaticCancer" name="metastaticCancer">
+                        <label for="metastaticCancer">Metastatic Cancer</label>
+                        <span class="info-icon" data-info="Metastatic solid tumor: Cancer that has spread from the primary site to other parts of the body. 'When cancer decides to go on a world tour without your permission.'">ℹ️</span>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="aids" name="aids">
+                        <label for="aids">AIDs</label>
+                        <span class="info-icon" data-info="AIDS: Advanced stage of HIV causing severe immune system damage. 'When your immune system's defense team goes on indefinite strike.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="renalMild" name="renalMild">
+                        <label for="renalMild">Mild Renal Disease</label>
+                        <span class="info-icon" data-info="Mild Renal disease: Reduced kidney function without severe impact. 'When your kidneys decide to take it easy, but not go on strike.'">ℹ️</span>
+
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="renalSevere" name="renalSevere">
+                        <label for="renalSevere">Severe Renal Disease</label>
+                        <span class="info-icon" data-info="Renal disease - severe: Critically reduced kidney function requiring significant medical intervention. 'When your kidneys are in full drama mode, demanding VIP treatment.'">ℹ️</span>
+
+                    </div>
+                </div>
+        
+            </div> <!-- Corrected structure by adding this closing div -->
+        </div>
+        
+
+        <!-- Column 3: Results -->
+        <div class="column">
+            <h3>Results</h3>
+            <div class="results-container">
+                <h4 class="outcome-title">Probability of Decompensating in 1 Year</h4>
+                <div class="predicted-probability" style="font-size: 48px; font-weight: bold; text-align: center;">
+                    <span id="probabilityValue"></span>
+                </div>
+                <div class="confidence-intervals" style="font-size: 18px; text-align: center; margin-top: 10px;">
+                    <span id="ciLabel">Confidence Interval:</span>
+                    <div class="ci-values">
+                        <span id="lowerBound"></span>
+                        <span>-</span>
+                        <span id="upperBound"></span>
+                    </div>
+                </div>
+                <div id="ciExplanation" class="ci-explanation" style="display: none; text-align: center; margin-top: 10px;">
+                    The 95% confidence interval represents statistical uncertainty in the model predictions.
+                </div>
+            </div>
+            <h3>Learn More About Our Methodology</h3>
+            <p>Understand the science behind our calculations.</p>
+            <div style="text-align: center;">
+                <button onclick="location.href='methodology.html';">View Methodology</button>
+            </div>
+        </div>
+        
+
+
+    </div>
+
+
+<script>
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const etiologySelect = document.getElementById('etiology');        
+        const matrixTypeSelect = document.getElementById('matrixType');
+        const hcvDrugContainer = document.getElementById('hcvDrugContainer'); // Reference the HCV drug container
+        const hcvDrugCheckbox = document.getElementById('hcvdrug'); // Reference the HCV drug checkbox itself
+
+        matrixTypeSelect.addEventListener('change', toggleHcvDrug);
+        etiologySelect.addEventListener('change', toggleHcvDrug);
+
+        function toggleHcvDrug() {
+            const selectedMatrixType = matrixTypeSelect.value;
+            const selectedEtiology = etiologySelect.value;
+
+            // Show HCV Drug checkbox only if pre-2016 or post-2016 and HCV etiology is selected
+            if ((selectedMatrixType === 'pre2016' || selectedMatrixType === 'post2016') && selectedEtiology === 'HCV') {
+                hcvDrugContainer.style.display = 'block'; // Show the HCV drug checkbox
+            } else {
+                hcvDrugContainer.style.display = 'none'; // Hide the HCV drug checkbox
+            }
+        }
+
+    // Call the toggleHcvDrug function initially to ensure correct display when page loads
+    toggleHcvDrug();
+
+        const calculateButton = document.getElementById('calculateButton');
+        const ageInput = document.getElementById('ageInput');
+        const genderInputs = document.querySelectorAll('input[name="gender"]');
+        const errorMessageContainer = document.getElementById('error-message-container');
+
+        calculateButton.addEventListener('click', function() {
+            const age = parseInt(ageInput.value, 10);
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            
+            // Clear previous error states
+            calculateButton.classList.remove('error', 'success');
+            errorMessageContainer.style.display = 'none';
+
+            // Set button to processing state
+            calculateButton.classList.add('processing');
+            calculateButton.textContent = 'Calculating...'
+
+            document.getElementById('ciExplanation').style.display = 'block';
+
+
+            // Delay the calculation simulation
+            setTimeout(function() {
+                if (isNaN(age) || age < 18 || age > 90) {
+                    errorMessageContainer.textContent = 'Age must be between 18 and 90.';
+                    errorMessageContainer.style.display = 'block';
+                    calculateButton.classList.remove('processing');
+                    calculateButton.classList.add('error');
+                    calculateButton.textContent = 'Calculate Risk';
+                    return; // Exit if there's an error
+                } 
+
+                // Suppose the calculation is successful
+                errorMessageContainer.style.display = 'none';
+                calculateButton.classList.remove('processing', 'error');
+                calculateButton.classList.add('success');
+                calculateButton.textContent = 'Calculate Risk';
+
+
+             // Simulated calculation time
+                // Clear the error message
+                errorMessageContainer.style.display = 'none';
+                    const comorbidities = [
+                        'hcc', 'obese', 'hyper', 'myocardialInfarction', 'heartFailure', 'peripheralVascularDisease', 'cerebrovascularDisease', 
+                        'dementia', 'COPD', 'rheumaticArthritis', 'ulcers', 
+                        'uncomplicatedDiabetes', 'paralysis', 'complicatedDiabetes', 'malignancy', 
+                        'metastaticCancer', 'aids', 'renalMild', 'renalSevere'
+                    ];
+
+
+            // Clear previous error messages
+            errorMessageContainer.textContent = '';
+            errorMessageContainer.style.display = 'none';
+
+            // Check if age is not a number, less than 18, or greater than 90
+            if (isNaN(age) || age < 18 || age > 90) {
+                // Prevent form submission or calculation
+                event.preventDefault();
+
+                // Display the error message
+                errorMessageContainer.textContent = 'Age must be a number between 18 and 90.';
+                errorMessageContainer.style.display = 'block';
+            } else {
+                // Age is valid, proceed with form submission or calculation
+                // ... Your calculation logic goes here ...
+            }
+
+
+            const etiology = document.getElementById('etiology').value;
+            //const referencePoint = document.getElementById('referencePoint').value;
+            const referencePoint = "Initial Diagnosis of Cirrhosis"; // Fixed reference point
+            let etiology_number = convertEtiologyToNumber(etiology);
+            //let reference_point_number = convertReferencePointToNumber(referencePoint);
+            let reference_point_number = 0; // Fixed reference point number to 0
+
+            console.log("Etiology: ", etiology, " -> Number: ", etiology_number);
+            console.log("Reference Point: ", referencePoint, " -> Number: ", reference_point_number);
+
+    
+            let X = convertAgeToSpline(age);
+            X.push(gender === 'female' ? 1 : 0);
+            X = X.concat(comorbidities.map(id => document.getElementById(id).checked ? 1 : 0));
+            
+            const selectedMatrixType = matrixTypeSelect.value;
+            const selectedEtiology = etiologySelect.value;
+
+            // Check if the matrix type is pre-2016 or post-2016 and etiology is HCV
+            if ((selectedMatrixType === 'pre2016' || selectedMatrixType === 'post2016') && selectedEtiology === 'HCV') {
+                // Add 1 if HCV drug is selected, otherwise add 0
+                X.push(hcvDrugCheckbox.checked ? 1 : 0);
+            }
+
+            X.push(1); // Intercept
+    
+            console.log("X Matrix: ", X);
+
+
+            const key = 'E' + etiology_number + 'T' + reference_point_number;
+            if (!MatrixFull[key]) {
+                console.error("MatrixData for key not found: ", key);
+                errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
+                errorMessageContainer.style.display = 'block';
+                return;
+            }
+
+            console.log("Key: ", key);
+
+            const matrixType = "Rob"; // Get the selected matrix type
+
+            console.log("Matrix Type: ", matrixType);
+
+
+
+            let matrixB, matrixV;
+
+            if (matrixType === 'Rob') {
+                if (!MatrixFull[key]) {
+                    errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
+                    errorMessageContainer.style.display = 'block';
+                    return;
+                }
+
+                // Decompensation
+                if (matrixTypeSelect.value === 'Full') {
+                    matrixB = MatrixFull[key].B;
+                    matrixV = MatrixFull[key].V;
+                } else if (matrixTypeSelect.value === 'pre2016') {
+                    matrixB = MatrixPre[key].B;
+                    matrixV = MatrixPre[key].V;
+                } else if (matrixTypeSelect.value === 'post2016') {
+                    matrixB = MatrixPost[key].B;
+                    matrixV = MatrixPost[key].V;
+                }
+ 
+            } else {
+                if (typeof MatrixDecompNon === 'undefined' || typeof MatrixHospNon === 'undefined' || typeof MatrixDeathNon === 'undefined') {
+                    console.error("MatrixDecompNon, MatrixHospNon, or MatrixDeathNon is not defined.");
+                    errorMessageContainer.textContent = 'The necessary data is not loaded.';
+                    errorMessageContainer.style.display = 'block';
+                    return;
+                }
+
+                if (!MatrixDecompNon[key] || !MatrixHospNon[key] || !MatrixDeathNon[key]) {
+                    errorMessageContainer.textContent = 'Data for the selected etiology and reference point is not available.';
+                    errorMessageContainer.style.display = 'block';
+                    return;
+                }
+
+                // Decompensation
+                matrixB = MatrixFull[key].B;
+                matrixV = MatrixFull[key].V;
+            }
+
+            console.log("Selected Matrix Type: ", matrixType);
+            console.log("Decompensation V Matrix: ", matrixV);
+    
+    
+            /*const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.textContent = `Matrix: [${X.join(', ')}], Etiology Number: ${etiology_number}, Reference Point Number: ${reference_point_number}`;
+
+
+
+            const matrixBContainer = document.getElementById('matrixBContainer');
+            const formattedMatrixB = matrixB.map(row => `[${row.join(', ')}]`).join(', ');
+            matrixBContainer.textContent = `Matrix B: [${formattedMatrixB}]`;
+    
+            const matrixVContainer = document.getElementById('matrixVContainer');
+            const formattedMatrixV = matrixV.map(row => `[${row.join(', ')}]`).join(', ');
+            matrixVContainer.textContent = `Matrix V: [${formattedMatrixV}]`;
+            
+            */
+
+            // Calculate the probability P
+            const P = calculateLogit(X, matrixB);
+            console.log("P calculated: ", P);
+            const probabilityValue = document.getElementById('probabilityValue');
+            const lowerBound = document.getElementById('lowerBound');
+            const upperBound = document.getElementById('upperBound');
+            //const probabilityContainer = document.getElementById('probabilityContainer');
+            //probabilityContainer.textContent = `Calculated Probability (P): ${P.toFixed(4)}`;
+            if (probabilityValue) {
+            probabilityValue.textContent = (P * 100).toFixed(2) + '%';
+        }
+
+        if (lowerBound) {
+            lowerBound.textContent = (calculateLowerBound(X, matrixB, matrixV) * 100).toFixed(2) + '%';
+        }
+
+        if (upperBound) {
+            upperBound.textContent = (calculateUpperBound(X, matrixB, matrixV) * 100).toFixed(2) + '%';
+        }
+    }, 750);
+    });
+       
+    
+        function calculateLogit(X, B) {
+            console.log("X:", X);
+            console.log("B:", B);
+
+            let dotProduct = 0;
+            for (let i = 0; i < X.length; i++) {
+                dotProduct += X[i] * B[i];
+            }
+
+            console.log("Dot Product:", dotProduct);
+
+            return logisticFunction(dotProduct);
+        }
+    
+        function logisticFunction(z) {
+            let p = 1 / (1 + Math.exp(-z))
+            return p;
+            onsole.log("P:",p);
+        }
+    
+        function convertAgeToSpline(age) {
+            let age1, age2, age3;
+                age1 = age;
+                age2 = (age-46)*(age>46);
+                age3 = (age-65)*(age>65);
+            return [age1, age2, age3];
+        }
+
+        function convertEtiologyToNumber(etiology) {
+        switch (etiology) {
+            case '2 plus': return 0;
+            case 'ALD': return 1;
+            case 'Biliary': return 2;
+            case 'HBV': return 3;
+            case 'MASLD': return 4;
+            case 'METALD': return 5;
+            case 'No Etiology Diagnosed': return 6;
+            case 'Other Etiology at Diagnosis': return 7;
+            case 'HCV': return 8;
+            default: return -1; // Default case to handle unexpected values
+        }
+    }
+        function convertReferencePointToNumber(referencePoint) {
+            switch (referencePoint) {
+                case 'Initial Diagnosis of Cirrhosis': return 0;
+                case '1 Year After Diagnosis of Cirrhosis': return 1;
+                case 'Initial Placement onto Transplant Waitlist': return 2;
+                case 'After Decompensating Event': return 3;
+                default: return -1; // Default case to handle unexpected values
+            }
+        }
+
+        function calculateStandardError(X, V) {
+            let X_transposed_V = new Array(X.length).fill(0);
+            console.log("Initial X_transposed_V:", X_transposed_V);
+
+            // Calculate X'V
+            for (let i = 0; i < X.length; i++) {
+                for (let j = 0; j < X.length; j++) {
+                    X_transposed_V[i] += X[j] * V[j][i];
+                }
+            }
+            console.log("Calculated X_transposed_V:", X_transposed_V);
+
+            // Calculate (X'V)X
+            let X_transposed_V_X = 0;
+            for (let i = 0; i < X.length; i++) {
+                X_transposed_V_X += X_transposed_V[i] * X[i];
+            }
+            console.log("Calculated X_transposed_V_X:", X_transposed_V_X);
+
+            return Math.sqrt(X_transposed_V_X);
+        }
+
+
+        function calculateLowerBound(X, B, V) {
+            // Calculate dot product X'B
+            let X_dot_B = 0;
+            for (let i = 0; i < X.length; i++) {
+                X_dot_B += X[i] * B[i];
+            }
+
+            // Calculate standard error sqrt(X'VX)
+            const sqrt_XVX = calculateStandardError(X, V);
+
+            // Calculate the lower bound in the logit scale
+            const z = X_dot_B - 1.96 * sqrt_XVX;
+
+            // Apply logistic function to get the lower bound probability
+            return logisticFunction(z);
+        }
+
+        function calculateUpperBound(X, B, V) {
+            // Calculate dot product X'B
+            let X_dot_B = 0;
+            for (let i = 0; i < X.length; i++) {
+                X_dot_B += X[i] * B[i];
+            }
+
+            // Calculate standard error sqrt(X'VX)
+            const sqrt_XVX = calculateStandardError(X, V);
+
+            // Calculate the upper bound in the logit scale
+            const z = X_dot_B + 1.96 * sqrt_XVX;
+
+            // Apply logistic function to get the upper bound probability
+            return logisticFunction(z);
+        }
+
+        function logisticFunction(z) {
+            return 1 / (1 + Math.exp(-z));
+        }
+    });
+
+    </script>
+    
+
+
+</body>
+</html>
+
