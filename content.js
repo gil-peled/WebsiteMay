@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     <div class="divider"></div>
                     <div class="content-text">
                         <p>We recommend that patients use this tool in consultation with their doctor.</p>
-                        <p>This tool is only for use in patients who are just diagnosed with a liver scarring.</p>
+                        <p>This tool is only for use in patients who are just diagnosed with a liver cirrhosis.</p>
                     </div>
                 </div>
             </div>

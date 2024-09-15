@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="prototype_academic.html">Calculator Beta</a></li>
+            <li><a href="sep9.html">Calculator September</a></li>
             <li class="dropdown">
                 <a href="javascript:void(0)" class="dropbtn">Other</a>
                 <div class="dropdown-content">
